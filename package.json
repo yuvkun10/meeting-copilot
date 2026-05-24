@@ -12,11 +12,13 @@
     "dev": "concurrently \"npm run dev -w @meeting-copilot/server\" \"npm run dev -w @meeting-copilot/client\"",
     "test": "npm run test -w @meeting-copilot/shared && npm run test -w @meeting-copilot/server",
     "build": "npm run build -w @meeting-copilot/shared && npm run build -w @meeting-copilot/server && npm run build -w @meeting-copilot/client",
-    "start": "npm run start -w @meeting-copilot/server"
+    "start": "npm run start -w @meeting-copilot/server",
+    "audit": "npm audit --audit-level=moderate",
+    "outdated": "npm outdated --workspaces --long"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "concurrently": "^9.2.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
   }
 }

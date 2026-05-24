@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/client"
+      - "/server"
+      - "/shared"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm-workspaces:
+        patterns:
+          - "*"
+        group-by: "dependency-name"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
