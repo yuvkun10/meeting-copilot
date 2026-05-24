@@ -1,0 +1,22 @@
+{
+  "name": "meeting-copilot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @meeting-copilot/server\" \"npm run dev -w @meeting-copilot/client\"",
+    "test": "npm run test -w @meeting-copilot/shared && npm run test -w @meeting-copilot/server",
+    "build": "npm run build -w @meeting-copilot/shared && npm run build -w @meeting-copilot/server && npm run build -w @meeting-copilot/client",
+    "start": "npm run start -w @meeting-copilot/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
