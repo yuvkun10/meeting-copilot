@@ -1,20 +1,45 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directories:
-      - "/"
-      - "/client"
-      - "/server"
-      - "/shared"
-    schedule:
-      interval: "weekly"
-    groups:
-      npm-workspaces:
-        patterns:
-          - "*"
-        group-by: "dependency-name"
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
+- package-ecosystem: npm
+  schedule:
+    interval: monthly
+    time: '10:40'
+    timezone: Australia/Melbourne
+  groups:
+    npm-minor-patch:
+      applies-to: version-updates
+      patterns:
+      - "*"
+      update-types:
+      - minor
+      - patch
+      group-by: dependency-name
+    npm-security:
+      applies-to: security-updates
+      patterns:
+      - "*"
+  directory: "/"
+- package-ecosystem: github-actions
+  schedule:
+    interval: monthly
+    time: '10:50'
+    timezone: Australia/Melbourne
+  directory: "/"
+  groups:
+    actions-minor-patch:
+      applies-to: version-updates
+      patterns:
+      - "*"
+      update-types:
+      - minor
+      - patch
+    actions-major:
+      applies-to: version-updates
+      patterns:
+      - "*"
+      update-types:
+      - major
+    actions-security:
+      applies-to: security-updates
+      patterns:
+      - "*"
