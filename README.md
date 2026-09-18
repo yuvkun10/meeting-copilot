@@ -95,16 +95,18 @@ Use `.env.example` as the public template. Keep real values in `.env.local` or y
 
 Do not expose OpenAI keys to the browser, commit `.env.local`, or place real meeting transcripts in tracked fixtures.
 
-## Codebase Structure
+## Repository map
 
 This repository is an npm workspace monorepo:
 
-- `client/`: React + Vite meeting workspace.
-- `server/`: Express API, OpenAI integration, upload handling, and validation.
-- `shared/`: transcript parsing, action extraction, fallback analysis, schemas, and export formatting.
-- `.github/workflows/`: CI for install, audit, outdated checks, tests, and builds.
-- `.github/dependabot.yml`: Dependabot updates for npm workspaces and GitHub Actions.
-- `.env.example`: safe configuration template for local and deployment setup.
+```text
+client/                 React + Vite meeting workspace
+server/                 Express API, OpenAI integration, upload handling, and validation
+shared/                 transcript parsing, action extraction, fallback analysis, schemas, and export formatting
+.github/workflows/      CI for install, audit, outdated checks, tests, and builds
+.github/dependabot.yml  Dependabot updates for npm workspaces and GitHub Actions
+.env.example            safe configuration template for local and deployment setup
+```
 
 ## Privacy and Security Notes
 
@@ -118,3 +120,7 @@ This repository is an npm workspace monorepo:
 ## Dependency Readiness
 
 Dependencies are checked at the workspace root with `npm outdated --workspaces --long` and `npm audit --audit-level=moderate`. CI runs both checks after `npm ci`, and Dependabot is configured for npm workspace manifests plus GitHub Actions.
+
+## Documentation
+
+- [Architecture diagram source](docs/architecture.mmd)

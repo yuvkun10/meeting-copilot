@@ -1,0 +1,15 @@
+flowchart LR
+  A["Transcript or audio"] --> B["Server validation"]
+  B --> C{"OpenAI configured?"}
+  C -- "yes" --> D["AI summary and transcription"]
+  C -- "no" --> E["Local deterministic analysis"]
+  D --> F["Structured meeting analysis"]
+  E --> F
+  F --> G["Summary and decisions"]
+  F --> H["Action items with owners and due dates"]
+  F --> I["Risks with severity"]
+  F --> J["Follow-up email draft"]
+  G --> K["Review and export"]
+  H --> K
+  I --> K
+  J --> K
