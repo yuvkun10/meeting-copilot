@@ -21,5 +21,6 @@ jobs:
       - run: npm ci
       - run: npm run audit
       - run: npm run outdated
+        continue-on-error: true  # informational: newer releases should not fail CI
       - run: npm test
       - run: npm run build
