@@ -1,6 +1,7 @@
 import { extractActionItems } from "./actions.js";
 import type { MeetingAnalysis, MeetingInput, Risk, TranscriptSegment } from "./schema.js";
 import { validateMeetingAnalysis } from "./schema.js";
+import { trimTrailingPeriods } from "./text.js";
 import { segmentTranscript } from "./transcript.js";
 
 export function buildFallbackAnalysis(input: MeetingInput): MeetingAnalysis {
@@ -25,9 +26,9 @@ export function extractDecisions(segments: TranscriptSegment[]): string[] {
   const seen = new Set<string>();
 
   for (const segment of segments) {
-    const explicit = segment.text.match(/\bdecision\s*[:\-]\s*(.+)$/i);
-    const implicit = segment.text.match(/\b(?:decided|agreed)\s+(?:to|that)?\s*(.+)$/i);
-    const decision = explicit?.[1] ?? implicit?.[1];
+    const explicit = textAfterLabel(segment.text, /\bdecision\s*[:\-]/gi);
+    const implicit = textAfterDecisionVerb(segment.text);
+    const decision = explicit ?? implicit;
     if (!decision) {
       continue;
     }
@@ -48,8 +49,8 @@ export function extractRisks(segments: TranscriptSegment[]): Risk[] {
   const seen = new Set<string>();
 
   for (const segment of segments) {
-    const explicit = segment.text.match(/\brisk\s*[:\-]\s*(.+)$/i);
-    const text = explicit?.[1] ?? (/\b(risk|blocked|blocker|concern|slip|delay)\b/i.test(segment.text) ? segment.text : "");
+    const explicit = textAfterLabel(segment.text, /\brisk\s*[:\-]/gi);
+    const text = explicit ?? (/\b(risk|blocked|blocker|concern|slip|delay)\b/i.test(segment.text) ? segment.text : "");
     const risk = cleanSentence(text);
     if (!risk) {
       continue;
@@ -124,5 +125,54 @@ function inferSeverity(text: string): Risk["severity"] {
 }
 
 function cleanSentence(value: string): string {
-  return value.replace(/\s+/g, " ").replace(/[.。]+$/g, "").trim();
+  return trimTrailingPeriods(value.replace(/\s+/g, " ")).trim();
+}
+
+// The helpers below return the same capture group as the regular expressions
+// they replace, but find it with plain string scans instead of backtracking.
+
+// Same as `text.slice(start).match(/^\s*(.+)$/)?.[1]`, where `lastBreak` is
+// the index of the last line break in `text`.
+function restOfLine(text: string, start: number, lastBreak: number): string | undefined {
+  const rest = text.slice(start);
+  const value = rest.trimStart() || rest.slice(-1);
+  return value && lastBreak < text.length - value.length ? value : undefined;
+}
+
+// Same as `text.match(/\b<label>\s*[:\-]\s*(.+)$/i)?.[1]` for a global `label` regex.
+function textAfterLabel(text: string, label: RegExp): string | undefined {
+  const lastBreak = lastLineBreak(text);
+  for (const match of text.matchAll(label)) {
+    const value = restOfLine(text, match.index + match[0].length, lastBreak);
+    if (value !== undefined) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+// Same as `text.match(/\b(?:decided|agreed)\s+(?:to|that)?\s*(.+)$/i)?.[1]`.
+function textAfterDecisionVerb(text: string): string | undefined {
+  const lastBreak = lastLineBreak(text);
+  for (const match of text.matchAll(/\b(?:decided|agreed)/gi)) {
+    const end = match.index + match[0].length;
+    const tailStart = text.length - text.slice(end).trimStart().length;
+    if (tailStart === end) {
+      continue;
+    }
+    const tail = text.slice(tailStart, tailStart + 4);
+    const value =
+      (/^to/i.test(tail) ? restOfLine(text, tailStart + 2, lastBreak) : undefined) ??
+      (/^that/i.test(tail) ? restOfLine(text, tailStart + 4, lastBreak) : undefined) ??
+      restOfLine(text, tailStart, lastBreak) ??
+      restOfLine(text, end + 1, lastBreak);
+    if (value !== undefined) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function lastLineBreak(text: string): number {
+  return Math.max(...["\n", "\r", "\u2028", "\u2029"].map((mark) => text.lastIndexOf(mark)));
 }
