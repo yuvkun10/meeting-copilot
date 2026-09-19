@@ -29,4 +29,16 @@ describe("extractActionItems", () => {
       })
     ]);
   });
+
+  it("strips trailing periods from long tasks quickly", () => {
+    const segments = segmentTranscript(`Maya: Action: Luis to review ${".".repeat(100_000)}x...`);
+
+    const started = performance.now();
+    const actions = extractActionItems(segments);
+
+    expect(performance.now() - started).toBeLessThan(1000);
+    expect(actions).toEqual([
+      expect.objectContaining({ owner: "Luis", task: `review${".".repeat(100_000)}x` })
+    ]);
+  });
 });

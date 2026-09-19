@@ -1,4 +1,5 @@
 import type { ActionItem, TranscriptSegment } from "./schema.js";
+import { trimTrailingPeriods } from "./text.js";
 
 const EXPLICIT_ACTION = /\b(?:action|todo|next step)\s*[:\-]\s*(.+)$/i;
 const OWNER_ACTION = /^([A-Z][A-Za-z ._'’-]{1,50})(?:\s+(?:to|will|should|needs to|is going to)\s+|\s*[-:]\s*)(.+)$/i;
@@ -90,5 +91,5 @@ function cleanOwner(value: string): string {
 }
 
 function stripTerminal(value: string): string {
-  return value.replace(/\s+/g, " ").replace(/[.。]+$/g, "").trim();
+  return trimTrailingPeriods(value.replace(/\s+/g, " ")).trim();
 }
